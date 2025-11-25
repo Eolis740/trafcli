@@ -1,0 +1,28 @@
+[
+  {"timestamp": "2024-05-01T12:00:00Z", "path": "/api/login", "status": 200, "latencyMs": 120, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:01Z", "path": "/api/login", "status": 401, "latencyMs": 95, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:02Z", "path": "/api/users", "status": 200, "latencyMs": 220, "service": "user"},
+  {"timestamp": "2024-05-01T12:00:02Z", "path": "/api/users", "status": 500, "latencyMs": 450, "service": "user"},
+  {"timestamp": "2024-05-01T12:00:03Z", "path": "/api/users/123", "status": 200, "latencyMs": 180, "service": "user"},
+  {"timestamp": "2024-05-01T12:00:04Z", "path": "/api/billing", "status": 200, "latencyMs": 210, "service": "billing"},
+  {"timestamp": "2024-05-01T12:00:05Z", "path": "/api/billing", "status": 503, "latencyMs": 600, "service": "billing"},
+  {"timestamp": "2024-05-01T12:00:06Z", "path": "/api/billing", "status": 200, "latencyMs": 150, "service": "billing"},
+  {"timestamp": "2024-05-01T12:00:07Z", "path": "/api/health", "status": 200, "latencyMs": 50, "service": "system"},
+  {"timestamp": "2024-05-01T12:00:08Z", "path": "/api/login", "status": 200, "latencyMs": 110, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:09Z", "path": "/api/login", "status": 404, "latencyMs": 130, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:10Z", "path": "/api/users", "status": 201, "latencyMs": 170, "service": "user"},
+  {"timestamp": "2024-05-01T12:00:00Z", "path": "/api/login", "status": 200, "latencyMs": 120, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:01Z", "path": "/api/login", "status": 401, "latencyMs": 95, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:02Z", "path": "/api/users", "status": 200, "latencyMs": 220, "service": "user"},
+  {"timestamp": "2024-05-01T12:00:02Z", "path": "/api/users", "status": 500, "latencyMs": 450, "service": "user"},
+  {"timestamp": "2024-05-01T12:00:03Z", "path": "/api/users/123", "status": 200, "latencyMs": 180, "service": "user"},
+  {"timestamp": "2024-05-01T12:00:04Z", "path": "/api/billing", "status": 200, "latencyMs": 210, "service": "billing"},
+  {"timestamp": "2024-05-01T12:00:05Z", "path": "/api/billing", "status": 503, "latencyMs": 600, "service": "billing"},
+  {"timestamp": "2024-05-01T12:00:06Z", "path": "/api/billing", "status": 200, "latencyMs": 150, "service": "billing"},
+  {"timestamp": "2024-05-01T12:00:07Z", "path": "/api/health", "status": 200, "latencyMs": 50, "service": "system"},
+  {"timestamp": "2024-05-01T12:00:07Z", "path": "/api/health", "status": 200, "latencyMs": 50, "service": "system"},
+  {"timestamp": "2024-05-01T12:00:08Z", "path": "/api/login", "status": 200, "latencyMs": 110, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:09Z", "path": "/api/login", "status": 404, "latencyMs": 130, "service": "auth"},
+  {"timestamp": "2024-05-01T12:00:10Z", "path": "/api/users/auth/123", "status": 201, "latencyMs": 170, "service": "user"}
+]
+
