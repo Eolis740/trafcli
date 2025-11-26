@@ -51,7 +51,6 @@ const refreshContext = (): CLIContext => {
   return { config, messages };
 };
 
-
 type FlagMap = Record<string, string | number | boolean>;
 
 const parseFlags = (tokens: string[]): FlagMap => {

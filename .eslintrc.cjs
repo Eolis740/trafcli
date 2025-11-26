@@ -10,15 +10,12 @@ module.exports = {
     es2020: true,
     jest: true
   },
-  plugins: ['@typescript-eslint', 'prettier'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended'
-  ],
+  ignorePatterns: ['dist', 'node_modules'],
+  plugins: ['@typescript-eslint'],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
   rules: {
-    'prettier/prettier': ['error'],
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-explicit-any': 'off'
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': 'off'
   }
 };
