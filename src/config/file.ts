@@ -39,7 +39,7 @@ export const resetConfig = (): void => {
   writeConfig(defaultConfig);
 };
 
-export const setLanguage = (_lang: Locale): Config => {
+export const setLanguage = (): Config => {
   const current = readConfig();
   const next: Config = { ...current, lang: 'en' as Locale };
   writeConfig(next);

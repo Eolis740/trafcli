@@ -31,7 +31,7 @@ export interface CLIContext {
 export const buildProgram = (): Command => {
   const program = new Command();
   const config = readConfig();
-  const messages = getMessages(config.lang);
+  const messages = getMessages();
   const ctx: CLIContext = { config, messages };
 
   program.name('trafcli').description(messages.common.cliDescription).version(pkg.version);
@@ -47,138 +47,10 @@ export const buildProgram = (): Command => {
 
 const refreshContext = (): CLIContext => {
   const config = readConfig();
-  const messages = getMessages(config.lang);
+  const messages = getMessages();
   return { config, messages };
 };
 
-const runStats = (filePath: string, ctx: CLIContext, logs: LogEntry[]): void => {
-  const stats = calculateStats(logs);
-  const statusTable = renderTable(
-    [
-      { name: ctx.messages.stats.colStatus },
-      { name: ctx.messages.stats.colCount, alignment: 'right' },
-      { name: '%' },
-    ],
-    Object.entries(stats.statusGroups).map(([key, count]) => [
-      ctx.messages.stats.statuses[key] ?? key,
-      formatNumber(count),
-      stats.totalRequests ? formatPercent(count / stats.totalRequests) : '0%',
-    ]),
-  );
-
-  const latencyTable = renderTable(
-    [
-      { name: ctx.messages.stats.average },
-      { name: ctx.messages.stats.max },
-      { name: ctx.messages.stats.p95 },
-      { name: ctx.messages.stats.p99 },
-    ],
-    [
-      [
-        formatMs(stats.latency.avg),
-        formatMs(stats.latency.max),
-        formatMs(stats.latency.p95),
-        formatMs(stats.latency.p99),
-      ],
-    ],
-  );
-
-  const endpointTable = renderTable(
-    [
-      { name: ctx.messages.stats.colPath },
-      { name: ctx.messages.stats.colCount, alignment: 'right' },
-    ],
-    stats.topEndpoints.map((item) => [item.path, formatNumber(item.count)]),
-  );
-
-  logInfo(ctx.messages.stats.title);
-  console.log(`${ctx.messages.stats.totalRequests}: ${formatNumber(stats.totalRequests)}`);
-  console.log(statusTable);
-  console.log(latencyTable);
-  console.log(endpointTable);
-};
-
-const runErrors = async (ctx: CLIContext, logs: LogEntry[]): Promise<void> => {
-  const answers = await inquirer.prompt([
-    { type: 'input', name: 'status', message: ctx.messages.common.statusOption, default: '' },
-    { type: 'input', name: 'path', message: ctx.messages.common.pathOption, default: '' },
-    { type: 'input', name: 'service', message: ctx.messages.common.serviceOption, default: '' },
-    { type: 'input', name: 'limit', message: ctx.messages.common.limitOption, default: '5' },
-  ]);
-  const status = answers.status ? Number(answers.status) : undefined;
-  const limit = answers.limit ? Number(answers.limit) : 5;
-  const filtered = analyzeErrors(
-    logs,
-    { status, path: answers.path || undefined, service: answers.service || undefined },
-    Number.isFinite(limit) ? limit : 5,
-  );
-
-  if (filtered.recent.length === 0) {
-    logInfo(ctx.messages.errors.noErrors);
-    return;
-  }
-
-  const countTable = renderTable(
-    [
-      { name: ctx.messages.errors.colStatus },
-      { name: ctx.messages.stats.colCount, alignment: 'right' },
-    ],
-    Object.entries(filtered.counts)
-      .sort((a, b) => Number(b[0]) - Number(a[0]))
-      .map(([statusCode, count]) => [statusCode, formatNumber(count)]),
-  );
-
-  const sampleTable = renderTable(
-    [
-      { name: ctx.messages.errors.colStatus },
-      { name: ctx.messages.errors.colPath },
-      { name: ctx.messages.errors.colService },
-      { name: ctx.messages.errors.colTime },
-      { name: ctx.messages.errors.colLatency, alignment: 'right' },
-    ],
-    filtered.recent.map((log) => [
-      String(log.status),
-      log.path,
-      log.service ?? '-',
-      log.timestamp,
-      log.latencyMs,
-    ]),
-  );
-
-  console.log(countTable);
-  console.log(sampleTable);
-};
-
-const runQps = async (ctx: CLIContext, logs: LogEntry[]): Promise<void> => {
-  const { groupBy } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'groupBy',
-      message: ctx.messages.common.groupOption,
-      choices: [
-        { name: 'none', value: undefined },
-        { name: 'service', value: 'service' },
-        { name: 'path', value: 'path' },
-      ],
-      default: undefined,
-    },
-  ]);
-
-  const result = calculateQps(logs, groupBy);
-
-  const seriesTable = renderTable(
-    [
-      { name: ctx.messages.qps.colTime },
-      { name: ctx.messages.qps.colGroup },
-      { name: ctx.messages.qps.colCount, alignment: 'right' },
-    ],
-    result.series.map((item) => [item.time, item.group ?? '-', formatNumber(item.count)]),
-  );
-
-  console.log(`${ctx.messages.qps.averageQps}: ${formatMs(result.averageQps)}`);
-  console.log(`${ctx.messages.qps.peakQps}: ${formatMs(result.peakQps)}`);
-  console.log(seriesTable);
-};
 
 type FlagMap = Record<string, string | number | boolean>;
 
@@ -565,7 +437,8 @@ const startShellSession = async (): Promise<void> => {
           activeInterval = setInterval(() => {
             void render();
           }, intervalMs);
-          // keep prompt active while watching
+          // 트래픽 스트리밍 중 에도 Ctrl+C로 멈출 수 있게
+          //트래픽 스트리밍 중 에도 명령어 입력 가능하게
           rl.prompt(true);
         } else {
           prompt();

@@ -36,7 +36,7 @@ export const runSettingMenu = async (ctx: CLIContext): Promise<void> => {
 
     if (action === 'reset') {
       resetConfig();
-      ctx.messages = getMessages(readConfig().lang);
+      ctx.messages = getMessages();
       logInfo(ctx.messages.common.configReset);
       continue;
     }
