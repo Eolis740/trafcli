@@ -1,6 +1,6 @@
 # trafcli (Traffic Insight CLI)
 
-Node.js + TypeScript 기반 JSON/NDJSON 트래픽 로그 분석 CLI 입니다. `stats`, `errors`, `qps`, `config` 명령을 제공하며 다국어(i18n)와 인터랙티브 설정을 지원합니다.
+Node.js + TypeScript 기반 JSON/NDJSON 트래픽 로그 분석 CLI 입니다. `stats`, `errors`, `qps`, `config` 명령을 제공하며 인터랙티브 설정을 지원합니다.
 
 ## 빠른 시작
 
