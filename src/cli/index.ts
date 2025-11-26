@@ -51,15 +51,6 @@ const refreshContext = (): CLIContext => {
   return { config, messages };
 };
 
-const promptLogFile = async (ctx: CLIContext): Promise<string | null> => {
-  const current = readConfig();
-  if (current.defaultFile) return current.defaultFile;
-  const answer = await inquirer.prompt([
-    { type: 'input', name: 'file', message: ctx.messages.common.promptFile },
-  ]);
-  return answer.file || null;
-};
-
 const runStats = (filePath: string, ctx: CLIContext, logs: LogEntry[]): void => {
   const stats = calculateStats(logs);
   const statusTable = renderTable(

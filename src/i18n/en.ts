@@ -1,5 +1,3 @@
-import { Locale } from '../core/types';
-
 export interface Messages {
   common: {
     cliDescription: string;

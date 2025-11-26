@@ -1,7 +1,5 @@
 import en, { Messages } from './en';
-import { Locale } from '../core/types';
-
-export const getMessages = (_lang?: Locale): Messages => {
+export const getMessages = (): Messages => {
   // Force English only.
   return en;
 };

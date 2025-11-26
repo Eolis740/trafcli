@@ -1,7 +1,6 @@
 import inquirer from 'inquirer';
 import { Command } from 'commander';
-import { readConfig, resetConfig, setDefaultFile, setLanguage } from '../../config/file';
-import { Locale } from '../../core/types';
+import { readConfig, resetConfig, setDefaultFile } from '../../config/file';
 import { CLIContext } from '../index';
 import { logInfo } from '../../utils/logger';
 import { getMessages } from '../../i18n';
