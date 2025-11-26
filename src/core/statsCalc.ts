@@ -27,7 +27,7 @@ export const calculateStats = (logs: LogEntry[], topLimit = 5): StatsResult => {
     avg: latencies.length ? latencies.reduce((a, b) => a + b, 0) / latencies.length : 0,
     max: latencies.length ? Math.max(...latencies) : 0,
     p95: percentile(latencies, 0.95),
-    p99: percentile(latencies, 0.99)
+    p99: percentile(latencies, 0.99),
   };
 
   const endpointEntries = Object.entries(endpointCounts).sort((a, b) => b[1] - a[1]);

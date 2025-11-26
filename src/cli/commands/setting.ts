@@ -20,9 +20,9 @@ export const runSettingMenu = async (ctx: CLIContext): Promise<void> => {
           { name: ctx.messages.config.setFile, value: 'file' },
           { name: ctx.messages.config.showing, value: 'show' },
           { name: ctx.messages.config.reset, value: 'reset' },
-          { name: ctx.messages.config.back, value: 'exit' }
-        ]
-      }
+          { name: ctx.messages.config.back, value: 'exit' },
+        ],
+      },
     ]);
 
     if (action === 'exit') {
@@ -48,8 +48,8 @@ export const runSettingMenu = async (ctx: CLIContext): Promise<void> => {
           type: 'input',
           name: 'file',
           message: ctx.messages.common.promptFile,
-          default: current.defaultFile ?? ''
-        }
+          default: current.defaultFile ?? '',
+        },
       ]);
       setDefaultFile(answer.file);
       logInfo(ctx.messages.common.configSaved);

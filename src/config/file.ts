@@ -4,7 +4,7 @@ import os from 'os';
 import { Config, Locale } from '../core/types';
 
 const defaultConfig: Config = {
-  lang: 'en'
+  lang: 'en',
 };
 
 export const getConfigPath = (): string => {

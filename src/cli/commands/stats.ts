@@ -36,20 +36,20 @@ export const registerStatsCommand = (program: Command, ctx: CLIContext): void =>
           return false;
         }
 
-        const topLimit = options.all ? 0 : options.top ?? 5;
+        const topLimit = options.all ? 0 : (options.top ?? 5);
         const stats = calculateStats(logs, topLimit);
 
         const statusTable = renderTable(
           [
             { name: ctx.messages.stats.colStatus },
             { name: ctx.messages.stats.colCount, alignment: 'right' },
-            { name: '%' }
+            { name: '%' },
           ],
           Object.entries(stats.statusGroups).map(([key, count]) => [
             ctx.messages.stats.statuses[key] ?? key,
             formatNumber(count),
-            stats.totalRequests ? formatPercent(count / stats.totalRequests) : '0%'
-          ])
+            stats.totalRequests ? formatPercent(count / stats.totalRequests) : '0%',
+          ]),
         );
 
         const latencyTable = renderTable(
@@ -57,22 +57,24 @@ export const registerStatsCommand = (program: Command, ctx: CLIContext): void =>
             { name: ctx.messages.stats.average },
             { name: ctx.messages.stats.max },
             { name: ctx.messages.stats.p95 },
-            { name: ctx.messages.stats.p99 }
+            { name: ctx.messages.stats.p99 },
           ],
-          [[
-            formatMs(stats.latency.avg),
-            formatMs(stats.latency.max),
-            formatMs(stats.latency.p95),
-            formatMs(stats.latency.p99)
-          ]]
+          [
+            [
+              formatMs(stats.latency.avg),
+              formatMs(stats.latency.max),
+              formatMs(stats.latency.p95),
+              formatMs(stats.latency.p99),
+            ],
+          ],
         );
 
         const endpointTable = renderTable(
           [
             { name: ctx.messages.stats.colPath },
-            { name: ctx.messages.stats.colCount, alignment: 'right' }
+            { name: ctx.messages.stats.colCount, alignment: 'right' },
           ],
-          stats.topEndpoints.map((item) => [item.path, formatNumber(item.count)])
+          stats.topEndpoints.map((item) => [item.path, formatNumber(item.count)]),
         );
 
         console.clear();

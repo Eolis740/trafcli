@@ -9,6 +9,6 @@ export const getMessages = (_lang?: Locale): Messages => {
 export const formatWith = (template: string, vars: Record<string, string | number>): string => {
   return Object.entries(vars).reduce(
     (acc, [key, value]) => acc.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value)),
-    template
+    template,
   );
 };

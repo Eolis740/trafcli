@@ -37,11 +37,15 @@ export const registerErrorsCommand = (program: Command, ctx: CLIContext): void =
 
       logInfo(formatWith(ctx.messages.common.usingFile, { file: filePath }));
 
-      const analysis = analyzeErrors(logs, {
-        status: options.status,
-        path: options.path,
-        service: options.service
-      }, options.limit);
+      const analysis = analyzeErrors(
+        logs,
+        {
+          status: options.status,
+          path: options.path,
+          service: options.service,
+        },
+        options.limit,
+      );
 
       if (analysis.recent.length === 0) {
         logInfo(ctx.messages.errors.noErrors);
@@ -51,11 +55,11 @@ export const registerErrorsCommand = (program: Command, ctx: CLIContext): void =
       const countTable = renderTable(
         [
           { name: ctx.messages.errors.colStatus },
-          { name: ctx.messages.stats.colCount, alignment: 'right' }
+          { name: ctx.messages.stats.colCount, alignment: 'right' },
         ],
         Object.entries(analysis.counts)
           .sort((a, b) => Number(b[0]) - Number(a[0]))
-          .map(([status, count]) => [status, formatNumber(count)])
+          .map(([status, count]) => [status, formatNumber(count)]),
       );
 
       const sampleTable = renderTable(
@@ -64,15 +68,15 @@ export const registerErrorsCommand = (program: Command, ctx: CLIContext): void =
           { name: ctx.messages.errors.colPath },
           { name: ctx.messages.errors.colService },
           { name: ctx.messages.errors.colTime },
-          { name: ctx.messages.errors.colLatency, alignment: 'right' }
+          { name: ctx.messages.errors.colLatency, alignment: 'right' },
         ],
         analysis.recent.map((log) => [
           String(log.status),
           log.path,
           log.service ?? '-',
           log.timestamp,
-          log.latencyMs
-        ])
+          log.latencyMs,
+        ]),
       );
 
       console.log('\n' + ctx.messages.errors.errorCounts);

@@ -55,7 +55,7 @@ const promptLogFile = async (ctx: CLIContext): Promise<string | null> => {
   const current = readConfig();
   if (current.defaultFile) return current.defaultFile;
   const answer = await inquirer.prompt([
-    { type: 'input', name: 'file', message: ctx.messages.common.promptFile }
+    { type: 'input', name: 'file', message: ctx.messages.common.promptFile },
   ]);
   return answer.file || null;
 };
@@ -66,13 +66,13 @@ const runStats = (filePath: string, ctx: CLIContext, logs: LogEntry[]): void => 
     [
       { name: ctx.messages.stats.colStatus },
       { name: ctx.messages.stats.colCount, alignment: 'right' },
-      { name: '%' }
+      { name: '%' },
     ],
     Object.entries(stats.statusGroups).map(([key, count]) => [
       ctx.messages.stats.statuses[key] ?? key,
       formatNumber(count),
-      stats.totalRequests ? formatPercent(count / stats.totalRequests) : '0%'
-    ])
+      stats.totalRequests ? formatPercent(count / stats.totalRequests) : '0%',
+    ]),
   );
 
   const latencyTable = renderTable(
@@ -80,22 +80,24 @@ const runStats = (filePath: string, ctx: CLIContext, logs: LogEntry[]): void => 
       { name: ctx.messages.stats.average },
       { name: ctx.messages.stats.max },
       { name: ctx.messages.stats.p95 },
-      { name: ctx.messages.stats.p99 }
+      { name: ctx.messages.stats.p99 },
     ],
-    [[
-      formatMs(stats.latency.avg),
-      formatMs(stats.latency.max),
-      formatMs(stats.latency.p95),
-      formatMs(stats.latency.p99)
-    ]]
+    [
+      [
+        formatMs(stats.latency.avg),
+        formatMs(stats.latency.max),
+        formatMs(stats.latency.p95),
+        formatMs(stats.latency.p99),
+      ],
+    ],
   );
 
   const endpointTable = renderTable(
     [
       { name: ctx.messages.stats.colPath },
-      { name: ctx.messages.stats.colCount, alignment: 'right' }
+      { name: ctx.messages.stats.colCount, alignment: 'right' },
     ],
-    stats.topEndpoints.map((item) => [item.path, formatNumber(item.count)])
+    stats.topEndpoints.map((item) => [item.path, formatNumber(item.count)]),
   );
 
   logInfo(ctx.messages.stats.title);
@@ -110,14 +112,14 @@ const runErrors = async (ctx: CLIContext, logs: LogEntry[]): Promise<void> => {
     { type: 'input', name: 'status', message: ctx.messages.common.statusOption, default: '' },
     { type: 'input', name: 'path', message: ctx.messages.common.pathOption, default: '' },
     { type: 'input', name: 'service', message: ctx.messages.common.serviceOption, default: '' },
-    { type: 'input', name: 'limit', message: ctx.messages.common.limitOption, default: '5' }
+    { type: 'input', name: 'limit', message: ctx.messages.common.limitOption, default: '5' },
   ]);
   const status = answers.status ? Number(answers.status) : undefined;
   const limit = answers.limit ? Number(answers.limit) : 5;
   const filtered = analyzeErrors(
     logs,
     { status, path: answers.path || undefined, service: answers.service || undefined },
-    Number.isFinite(limit) ? limit : 5
+    Number.isFinite(limit) ? limit : 5,
   );
 
   if (filtered.recent.length === 0) {
@@ -128,11 +130,11 @@ const runErrors = async (ctx: CLIContext, logs: LogEntry[]): Promise<void> => {
   const countTable = renderTable(
     [
       { name: ctx.messages.errors.colStatus },
-      { name: ctx.messages.stats.colCount, alignment: 'right' }
+      { name: ctx.messages.stats.colCount, alignment: 'right' },
     ],
     Object.entries(filtered.counts)
       .sort((a, b) => Number(b[0]) - Number(a[0]))
-      .map(([statusCode, count]) => [statusCode, formatNumber(count)])
+      .map(([statusCode, count]) => [statusCode, formatNumber(count)]),
   );
 
   const sampleTable = renderTable(
@@ -141,15 +143,15 @@ const runErrors = async (ctx: CLIContext, logs: LogEntry[]): Promise<void> => {
       { name: ctx.messages.errors.colPath },
       { name: ctx.messages.errors.colService },
       { name: ctx.messages.errors.colTime },
-      { name: ctx.messages.errors.colLatency, alignment: 'right' }
+      { name: ctx.messages.errors.colLatency, alignment: 'right' },
     ],
     filtered.recent.map((log) => [
       String(log.status),
       log.path,
       log.service ?? '-',
       log.timestamp,
-      log.latencyMs
-    ])
+      log.latencyMs,
+    ]),
   );
 
   console.log(countTable);
@@ -165,10 +167,10 @@ const runQps = async (ctx: CLIContext, logs: LogEntry[]): Promise<void> => {
       choices: [
         { name: 'none', value: undefined },
         { name: 'service', value: 'service' },
-        { name: 'path', value: 'path' }
+        { name: 'path', value: 'path' },
       ],
-      default: undefined
-    }
+      default: undefined,
+    },
   ]);
 
   const result = calculateQps(logs, groupBy);
@@ -177,9 +179,9 @@ const runQps = async (ctx: CLIContext, logs: LogEntry[]): Promise<void> => {
     [
       { name: ctx.messages.qps.colTime },
       { name: ctx.messages.qps.colGroup },
-      { name: ctx.messages.qps.colCount, alignment: 'right' }
+      { name: ctx.messages.qps.colCount, alignment: 'right' },
     ],
-    result.series.map((item) => [item.time, item.group ?? '-', formatNumber(item.count)])
+    result.series.map((item) => [item.time, item.group ?? '-', formatNumber(item.count)]),
   );
 
   console.log(`${ctx.messages.qps.averageQps}: ${formatMs(result.averageQps)}`);
@@ -241,7 +243,7 @@ const autoDetectLogFileSync = (): string | null => {
     'logs/traffic.log',
     'log/traffic.json',
     'log/traffic.ndjson',
-    'log/traffic.log'
+    'log/traffic.log',
   ].map((p) => path.resolve(cwd, p));
 
   for (const c of candidates) {
@@ -252,13 +254,14 @@ const autoDetectLogFileSync = (): string | null => {
 
 const globLogCandidates = async (): Promise<string[]> => {
   const cwd = process.cwd();
-  const patterns = [
-    '**/traffic*.json',
-    '**/*.ndjson',
-    '**/*.log',
-    '**/*.json'
+  const patterns = ['**/traffic*.json', '**/*.ndjson', '**/*.log', '**/*.json'];
+  const ignore = [
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/.git/**',
+    '**/.turbo/**',
+    '**/coverage/**',
   ];
-  const ignore = ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/.turbo/**', '**/coverage/**'];
   const matches = await glob(patterns, { cwd, ignore, nodir: true, absolute: true, maxDepth: 6 });
   const uniq = Array.from(new Set(matches));
   return uniq;
@@ -275,8 +278,8 @@ const pickLogFile = async (): Promise<string | null> => {
       type: 'list',
       name: 'chosen',
       message: 'Select log file',
-      choices: candidates.map((c) => ({ name: path.relative(process.cwd(), c), value: c }))
-    }
+      choices: candidates.map((c) => ({ name: path.relative(process.cwd(), c), value: c })),
+    },
   ]);
   return chosen;
 };
@@ -309,7 +312,7 @@ const appendHistory = (line: string): void => {
 
 const ensureLogs = async (
   ctx: CLIContext,
-  filePath?: string
+  filePath?: string,
 ): Promise<{ file: string; logs: LogEntry[] } | null> => {
   let targetFile = filePath || ctx.config.defaultFile || autoDetectLogFileSync();
   if (!targetFile) {
@@ -347,14 +350,14 @@ const startShellSession = async (): Promise<void> => {
     'cls',
     'help',
     'exit',
-    'quit'
+    'quit',
   ];
   const flagHints: Record<string, string[]> = {
     stats: ['--watch', '--interval', '--file', '--top', '--all'],
     errors: ['--status', '--path', '--service', '--limit', '--file'],
     qps: ['--group-by', '--file'],
     search: ['--path', '--service', '--status', '--limit', '--file'],
-    config: ['show', 'reset', 'set-file']
+    config: ['show', 'reset', 'set-file'],
   };
 
   const safeLoadForCompletion = (): LogEntry[] => {
@@ -378,16 +381,12 @@ const startShellSession = async (): Promise<void> => {
       if (l.service) services.add(l.service);
       statuses.add(String(l.status));
     });
-    return [
-      ...Array.from(paths),
-      ...Array.from(services),
-      ...Array.from(statuses)
-    ].slice(0, 200);
+    return [...Array.from(paths), ...Array.from(services), ...Array.from(statuses)].slice(0, 200);
   };
 
   const completer = (line: string): [string[], string] => {
     const tokens = line.trim().split(/\s+/).filter(Boolean);
-    const last = line.endsWith(' ') ? '' : tokens[tokens.length - 1] ?? '';
+    const last = line.endsWith(' ') ? '' : (tokens[tokens.length - 1] ?? '');
     const cmd = tokens[0] ?? '';
 
     let suggestions: string[] = [];
@@ -412,7 +411,7 @@ const startShellSession = async (): Promise<void> => {
     output: process.stdout,
     completer,
     history: loadHistory(),
-    historySize: 500
+    historySize: 500,
   });
 
   let activeInterval: NodeJS.Timeout | null = null;
@@ -434,276 +433,287 @@ const startShellSession = async (): Promise<void> => {
     }
   });
 
-  const prompt = () => rl.question('trafcli> ', async (line) => {
-    appendHistory(line);
-    const ctx = refreshContext();
-    const tokens = line.trim().split(/\s+/).filter(Boolean);
-    if (tokens.length === 0) {
-      prompt();
-      return;
-    }
-    const [first, ...restTokens] = tokens;
-    let cmd = first ?? '';
-    const rest = [...restTokens];
-    if (cmd === 'trafcli') {
-      cmd = rest.shift() ?? '';
-    }
-    const flags = parseFlags(rest);
-
-    if (cmd === 'exit' || cmd === 'quit') {
-      rl.close();
-      return;
-    }
-
-    if (cmd === 'help') {
-      console.log('Commands:');
-      console.log('  stats [--watch] [--interval <sec>] [--file <path>]');
-      console.log('  errors [--status <code>] [--path <sub>] [--service <name>] [--limit <n>] [--file <path>]');
-      console.log('  qps [--group-by service|path] [--file <path>]');
-      console.log('  setting (opens settings menu)');
-      console.log('  config show|reset|set-file <path>');
-      console.log('  search <keyword> [--path <sub>] [--service <name>] [--status <code>] [--limit <n>] [--file <path>]');
-      console.log('  clear');
-      console.log('  help');
-      console.log('  exit');
-      prompt();
-      return;
-    }
-
-    if (cmd === 'clear' || cmd === 'cls') {
-      console.clear();
-      prompt();
-      return;
-    }
-
-    if (cmd === 'config') {
-      const sub = rest[0];
-      if (sub === 'show') {
-        console.log(JSON.stringify(readConfig(), null, 2));
-      } else if (sub === 'reset') {
-        // Soft reset: re-write default config via setDefaultFile with undefined and lang enforced by getMessages.
-        setDefaultFile('');
-        logInfo(ctx.messages.common.configReset);
-      } else if (sub === 'set-file' && rest[1]) {
-        setDefaultFile(rest[1]);
-        logInfo(ctx.messages.common.configSaved);
-      } else {
-        logError('Usage: config show|reset|set-file <path>');
-      }
-      prompt();
-      return;
-    }
-
-    if (cmd === 'setting') {
-      await runSettingMenu(ctx);
-      prompt();
-      return;
-    }
-
-    if (cmd === 'stats') {
-      const target = await ensureLogs(ctx, flags.file as string | undefined);
-      if (!target) {
+  const prompt = () =>
+    rl.question('trafcli> ', async (line) => {
+      appendHistory(line);
+      const ctx = refreshContext();
+      const tokens = line.trim().split(/\s+/).filter(Boolean);
+      if (tokens.length === 0) {
         prompt();
         return;
       }
-      const isWatch = Boolean(flags.watch);
-      const render = async () => {
-        const refreshed = await ensureLogs(ctx, target.file);
-        if (!refreshed) return false;
-        const { logs, file } = refreshed;
-        const stats = calculateStats(logs);
-        const statusTable = renderTable(
-          [
-            { name: ctx.messages.stats.colStatus },
-            { name: ctx.messages.stats.colCount, alignment: 'right' },
-            { name: '%' }
-          ],
-          Object.entries(stats.statusGroups).map(([key, count]) => [
-            ctx.messages.stats.statuses[key] ?? key,
-            formatNumber(count),
-            stats.totalRequests ? formatPercent(count / stats.totalRequests) : '0%'
-          ])
+      const [first, ...restTokens] = tokens;
+      let cmd = first ?? '';
+      const rest = [...restTokens];
+      if (cmd === 'trafcli') {
+        cmd = rest.shift() ?? '';
+      }
+      const flags = parseFlags(rest);
+
+      if (cmd === 'exit' || cmd === 'quit') {
+        rl.close();
+        return;
+      }
+
+      if (cmd === 'help') {
+        console.log('Commands:');
+        console.log('  stats [--watch] [--interval <sec>] [--file <path>]');
+        console.log(
+          '  errors [--status <code>] [--path <sub>] [--service <name>] [--limit <n>] [--file <path>]',
         );
-        const latencyTable = renderTable(
-          [
-            { name: ctx.messages.stats.average },
-            { name: ctx.messages.stats.max },
-            { name: ctx.messages.stats.p95 },
-            { name: ctx.messages.stats.p99 }
-          ],
-          [[
-            formatMs(stats.latency.avg),
-            formatMs(stats.latency.max),
-            formatMs(stats.latency.p95),
-            formatMs(stats.latency.p99)
-          ]]
+        console.log('  qps [--group-by service|path] [--file <path>]');
+        console.log('  setting (opens settings menu)');
+        console.log('  config show|reset|set-file <path>');
+        console.log(
+          '  search <keyword> [--path <sub>] [--service <name>] [--status <code>] [--limit <n>] [--file <path>]',
         );
-        const endpointTable = renderTable(
-          [
-            { name: ctx.messages.stats.colPath },
-            { name: ctx.messages.stats.colCount, alignment: 'right' }
-          ],
-            stats.topEndpoints.map((item) => [item.path, formatNumber(item.count)])
-          );
+        console.log('  clear');
+        console.log('  help');
+        console.log('  exit');
+        prompt();
+        return;
+      }
+
+      if (cmd === 'clear' || cmd === 'cls') {
         console.clear();
-        logInfo(`File: ${file}`);
-        console.log(statusTable);
-        console.log(latencyTable);
-        console.log(endpointTable);
-        if (isWatch) {
-          rl.prompt(true);
+        prompt();
+        return;
+      }
+
+      if (cmd === 'config') {
+        const sub = rest[0];
+        if (sub === 'show') {
+          console.log(JSON.stringify(readConfig(), null, 2));
+        } else if (sub === 'reset') {
+          // Soft reset: re-write default config via setDefaultFile with undefined and lang enforced by getMessages.
+          setDefaultFile('');
+          logInfo(ctx.messages.common.configReset);
+        } else if (sub === 'set-file' && rest[1]) {
+          setDefaultFile(rest[1]);
+          logInfo(ctx.messages.common.configSaved);
+        } else {
+          logError('Usage: config show|reset|set-file <path>');
         }
-        return true;
-      };
+        prompt();
+        return;
+      }
 
-      const ok = await render();
-      if (!ok) {
+      if (cmd === 'setting') {
+        await runSettingMenu(ctx);
         prompt();
         return;
       }
-      if (isWatch) {
-        logInfo(ctx.messages.common.watchStart);
-        const intervalMs = Math.max(1, Number(flags.interval) || 2) * 1000;
-        stopActiveInterval();
-        activeInterval = setInterval(() => {
-          void render();
-        }, intervalMs);
-        // keep prompt active while watching
-        rl.prompt(true);
-      } else {
-        prompt();
-      }
-      return;
-    }
 
-    if (cmd === 'errors') {
-      const target = await ensureLogs(ctx, flags.file as string | undefined);
-      if (!target) {
+      if (cmd === 'stats') {
+        const target = await ensureLogs(ctx, flags.file as string | undefined);
+        if (!target) {
+          prompt();
+          return;
+        }
+        const isWatch = Boolean(flags.watch);
+        const render = async () => {
+          const refreshed = await ensureLogs(ctx, target.file);
+          if (!refreshed) return false;
+          const { logs, file } = refreshed;
+          const stats = calculateStats(logs);
+          const statusTable = renderTable(
+            [
+              { name: ctx.messages.stats.colStatus },
+              { name: ctx.messages.stats.colCount, alignment: 'right' },
+              { name: '%' },
+            ],
+            Object.entries(stats.statusGroups).map(([key, count]) => [
+              ctx.messages.stats.statuses[key] ?? key,
+              formatNumber(count),
+              stats.totalRequests ? formatPercent(count / stats.totalRequests) : '0%',
+            ]),
+          );
+          const latencyTable = renderTable(
+            [
+              { name: ctx.messages.stats.average },
+              { name: ctx.messages.stats.max },
+              { name: ctx.messages.stats.p95 },
+              { name: ctx.messages.stats.p99 },
+            ],
+            [
+              [
+                formatMs(stats.latency.avg),
+                formatMs(stats.latency.max),
+                formatMs(stats.latency.p95),
+                formatMs(stats.latency.p99),
+              ],
+            ],
+          );
+          const endpointTable = renderTable(
+            [
+              { name: ctx.messages.stats.colPath },
+              { name: ctx.messages.stats.colCount, alignment: 'right' },
+            ],
+            stats.topEndpoints.map((item) => [item.path, formatNumber(item.count)]),
+          );
+          console.clear();
+          logInfo(`File: ${file}`);
+          console.log(statusTable);
+          console.log(latencyTable);
+          console.log(endpointTable);
+          if (isWatch) {
+            rl.prompt(true);
+          }
+          return true;
+        };
+
+        const ok = await render();
+        if (!ok) {
+          prompt();
+          return;
+        }
+        if (isWatch) {
+          logInfo(ctx.messages.common.watchStart);
+          const intervalMs = Math.max(1, Number(flags.interval) || 2) * 1000;
+          stopActiveInterval();
+          activeInterval = setInterval(() => {
+            void render();
+          }, intervalMs);
+          // keep prompt active while watching
+          rl.prompt(true);
+        } else {
+          prompt();
+        }
+        return;
+      }
+
+      if (cmd === 'errors') {
+        const target = await ensureLogs(ctx, flags.file as string | undefined);
+        if (!target) {
+          prompt();
+          return;
+        }
+        const filtered = analyzeErrors(
+          target.logs,
+          {
+            status: flags.status ? Number(flags.status) : undefined,
+            path: flags.path ? String(flags.path) : undefined,
+            service: flags.service ? String(flags.service) : undefined,
+          },
+          flags.limit ? Number(flags.limit) : 5,
+        );
+        if (filtered.recent.length === 0) {
+          logInfo(ctx.messages.errors.noErrors);
+          prompt();
+          return;
+        }
+        const countTable = renderTable(
+          [
+            { name: ctx.messages.errors.colStatus },
+            { name: ctx.messages.stats.colCount, alignment: 'right' },
+          ],
+          Object.entries(filtered.counts)
+            .sort((a, b) => Number(b[0]) - Number(a[0]))
+            .map(([statusCode, count]) => [statusCode, formatNumber(count)]),
+        );
+        const sampleTable = renderTable(
+          [
+            { name: ctx.messages.errors.colStatus },
+            { name: ctx.messages.errors.colPath },
+            { name: ctx.messages.errors.colService },
+            { name: ctx.messages.errors.colTime },
+            { name: ctx.messages.errors.colLatency, alignment: 'right' },
+          ],
+          filtered.recent.map((log) => [
+            String(log.status),
+            log.path,
+            log.service ?? '-',
+            log.timestamp,
+            log.latencyMs,
+          ]),
+        );
+        console.clear();
+        logInfo(`File: ${target.file}`);
+        console.log(countTable);
+        console.log(sampleTable);
         prompt();
         return;
       }
-      const filtered = analyzeErrors(
-        target.logs,
-        {
-          status: flags.status ? Number(flags.status) : undefined,
-          path: flags.path ? String(flags.path) : undefined,
-          service: flags.service ? String(flags.service) : undefined
-        },
-        flags.limit ? Number(flags.limit) : 5
-      );
-      if (filtered.recent.length === 0) {
-        logInfo(ctx.messages.errors.noErrors);
+
+      if (cmd === 'search') {
+        const target = await ensureLogs(ctx, flags.file as string | undefined);
+        if (!target) {
+          prompt();
+          return;
+        }
+        const keyword = rest.find((t) => !t.startsWith('-')) || '';
+        if (!keyword) {
+          logError(
+            'Usage: search <keyword> [--path <sub>] [--service <name>] [--status <code>] [--limit <n>]',
+          );
+          prompt();
+          return;
+        }
+        const kwLower = keyword.toLowerCase();
+        const limit = flags.limit ? Number(flags.limit) : 20;
+        const filtered = target.logs.filter((log) => {
+          if (flags.status && log.status !== Number(flags.status)) return false;
+          if (flags.path && !log.path.includes(String(flags.path))) return false;
+          if (flags.service && log.service !== String(flags.service)) return false;
+          return JSON.stringify(log).toLowerCase().includes(kwLower);
+        });
+        const rows = filtered
+          .slice(0, Number.isFinite(limit) ? limit : 20)
+          .map((log) => [
+            String(log.status),
+            log.path,
+            log.service ?? '-',
+            log.timestamp,
+            log.latencyMs,
+          ]);
+        const table = renderTable(
+          [
+            { name: ctx.messages.errors.colStatus },
+            { name: ctx.messages.errors.colPath },
+            { name: ctx.messages.errors.colService },
+            { name: ctx.messages.errors.colTime },
+            { name: ctx.messages.errors.colLatency, alignment: 'right' },
+          ],
+          rows,
+        );
+        console.clear();
+        logInfo(`File: ${target.file}`);
+        console.log(`Search: "${keyword}" (matched ${filtered.length})`);
+        console.log(table);
         prompt();
         return;
       }
-      const countTable = renderTable(
-        [
-          { name: ctx.messages.errors.colStatus },
-          { name: ctx.messages.stats.colCount, alignment: 'right' }
-        ],
-        Object.entries(filtered.counts)
-          .sort((a, b) => Number(b[0]) - Number(a[0]))
-          .map(([statusCode, count]) => [statusCode, formatNumber(count)])
-      );
-      const sampleTable = renderTable(
-        [
-          { name: ctx.messages.errors.colStatus },
-          { name: ctx.messages.errors.colPath },
-          { name: ctx.messages.errors.colService },
-          { name: ctx.messages.errors.colTime },
-          { name: ctx.messages.errors.colLatency, alignment: 'right' }
-        ],
-        filtered.recent.map((log) => [
-          String(log.status),
-          log.path,
-          log.service ?? '-',
-          log.timestamp,
-          log.latencyMs
-        ])
-      );
-      console.clear();
-      logInfo(`File: ${target.file}`);
-      console.log(countTable);
-      console.log(sampleTable);
+
+      if (cmd === 'qps') {
+        const target = await ensureLogs(ctx, flags.file as string | undefined);
+        if (!target) {
+          prompt();
+          return;
+        }
+        const result = calculateQps(
+          target.logs,
+          flags['group-by'] ? (String(flags['group-by']) as 'service' | 'path') : undefined,
+        );
+        const seriesTable = renderTable(
+          [
+            { name: ctx.messages.qps.colTime },
+            { name: ctx.messages.qps.colGroup },
+            { name: ctx.messages.qps.colCount, alignment: 'right' },
+          ],
+          result.series.map((item) => [item.time, item.group ?? '-', formatNumber(item.count)]),
+        );
+        console.clear();
+        logInfo(`File: ${target.file}`);
+        console.log(`${ctx.messages.qps.averageQps}: ${formatMs(result.averageQps)}`);
+        console.log(`${ctx.messages.qps.peakQps}: ${formatMs(result.peakQps)}`);
+        console.log(seriesTable);
+        prompt();
+        return;
+      }
+
+      logError('Unknown command. Type "help" for list.');
       prompt();
-      return;
-    }
-
-    if (cmd === 'search') {
-      const target = await ensureLogs(ctx, flags.file as string | undefined);
-      if (!target) {
-        prompt();
-        return;
-      }
-      const keyword = rest.find((t) => !t.startsWith('-')) || '';
-      if (!keyword) {
-        logError('Usage: search <keyword> [--path <sub>] [--service <name>] [--status <code>] [--limit <n>]');
-        prompt();
-        return;
-      }
-      const kwLower = keyword.toLowerCase();
-      const limit = flags.limit ? Number(flags.limit) : 20;
-      const filtered = target.logs.filter((log) => {
-        if (flags.status && log.status !== Number(flags.status)) return false;
-        if (flags.path && !log.path.includes(String(flags.path))) return false;
-        if (flags.service && log.service !== String(flags.service)) return false;
-        return JSON.stringify(log).toLowerCase().includes(kwLower);
-      });
-      const rows = filtered.slice(0, Number.isFinite(limit) ? limit : 20).map((log) => [
-        String(log.status),
-        log.path,
-        log.service ?? '-',
-        log.timestamp,
-        log.latencyMs
-      ]);
-      const table = renderTable(
-        [
-          { name: ctx.messages.errors.colStatus },
-          { name: ctx.messages.errors.colPath },
-          { name: ctx.messages.errors.colService },
-          { name: ctx.messages.errors.colTime },
-          { name: ctx.messages.errors.colLatency, alignment: 'right' }
-        ],
-        rows
-      );
-      console.clear();
-      logInfo(`File: ${target.file}`);
-      console.log(`Search: "${keyword}" (matched ${filtered.length})`);
-      console.log(table);
-      prompt();
-      return;
-    }
-
-    if (cmd === 'qps') {
-      const target = await ensureLogs(ctx, flags.file as string | undefined);
-      if (!target) {
-        prompt();
-        return;
-      }
-      const result = calculateQps(
-        target.logs,
-        flags['group-by'] ? (String(flags['group-by']) as 'service' | 'path') : undefined
-      );
-      const seriesTable = renderTable(
-        [
-          { name: ctx.messages.qps.colTime },
-          { name: ctx.messages.qps.colGroup },
-          { name: ctx.messages.qps.colCount, alignment: 'right' }
-        ],
-        result.series.map((item) => [item.time, item.group ?? '-', formatNumber(item.count)])
-      );
-      console.clear();
-      logInfo(`File: ${target.file}`);
-      console.log(`${ctx.messages.qps.averageQps}: ${formatMs(result.averageQps)}`);
-      console.log(`${ctx.messages.qps.peakQps}: ${formatMs(result.peakQps)}`);
-      console.log(seriesTable);
-      prompt();
-      return;
-    }
-
-    logError('Unknown command. Type "help" for list.');
-    prompt();
-  });
+    });
 
   prompt();
 };

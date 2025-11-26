@@ -19,7 +19,7 @@ export const normalizeEntry = (entry: any): LogEntry | null => {
     status: statusNumber,
     latencyMs: latencyNumber,
     service: service ? String(service) : undefined,
-    ...rest
+    ...rest,
   };
 };
 

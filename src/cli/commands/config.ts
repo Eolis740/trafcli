@@ -39,14 +39,14 @@ export const registerConfigCommand = (program: Command, ctx: CLIContext): void =
           type: 'input',
           name: 'defaultFile',
           message: ctx.messages.common.promptFile,
-          default: current.defaultFile ?? ''
-        }
+          default: current.defaultFile ?? '',
+        },
       ]);
 
       const nextConfig: typeof current & typeof answers = {
         ...current,
         ...answers,
-        lang: 'en' as Locale
+        lang: 'en' as Locale,
       };
       writeConfig(nextConfig);
       logInfo(ctx.messages.common.configSaved);

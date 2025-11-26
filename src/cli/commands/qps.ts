@@ -13,7 +13,11 @@ export const registerQpsCommand = (program: Command, ctx: CLIContext): void => {
     .command('qps')
     .description(ctx.messages.qps.title)
     .option('-f, --file <path>', ctx.messages.common.fileOption)
-    .option('-g, --group-by <field>', ctx.messages.common.groupOption, (v) => v as 'service' | 'path')
+    .option(
+      '-g, --group-by <field>',
+      ctx.messages.common.groupOption,
+      (v) => v as 'service' | 'path',
+    )
     .action(async (options) => {
       const filePath = options.file || ctx.config.defaultFile;
       if (!filePath) {
@@ -40,9 +44,9 @@ export const registerQpsCommand = (program: Command, ctx: CLIContext): void => {
         [
           { name: ctx.messages.qps.colTime },
           { name: ctx.messages.qps.colGroup },
-          { name: ctx.messages.qps.colCount, alignment: 'right' }
+          { name: ctx.messages.qps.colCount, alignment: 'right' },
         ],
-        result.series.map((item) => [item.time, item.group ?? '-', formatNumber(item.count)])
+        result.series.map((item) => [item.time, item.group ?? '-', formatNumber(item.count)]),
       );
 
       console.log('\n' + ctx.messages.qps.title);
