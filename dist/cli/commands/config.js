@@ -38,13 +38,13 @@ const registerConfigCommand = (program, ctx) => {
                 type: 'input',
                 name: 'defaultFile',
                 message: ctx.messages.common.promptFile,
-                default: current.defaultFile ?? ''
-            }
+                default: current.defaultFile ?? '',
+            },
         ]);
         const nextConfig = {
             ...current,
             ...answers,
-            lang: 'en'
+            lang: 'en',
         };
         (0, file_1.writeConfig)(nextConfig);
         (0, logger_1.logInfo)(ctx.messages.common.configSaved);

@@ -22,9 +22,9 @@ const runSettingMenu = async (ctx) => {
                     { name: ctx.messages.config.setFile, value: 'file' },
                     { name: ctx.messages.config.showing, value: 'show' },
                     { name: ctx.messages.config.reset, value: 'reset' },
-                    { name: ctx.messages.config.back, value: 'exit' }
-                ]
-            }
+                    { name: ctx.messages.config.back, value: 'exit' },
+                ],
+            },
         ]);
         if (action === 'exit') {
             exit = true;
@@ -36,11 +36,9 @@ const runSettingMenu = async (ctx) => {
         }
         if (action === 'reset') {
             (0, file_1.resetConfig)();
-            ctx.messages = (0, i18n_1.getMessages)((0, file_1.readConfig)().lang);
+            ctx.messages = (0, i18n_1.getMessages)();
             (0, logger_1.logInfo)(ctx.messages.common.configReset);
             continue;
-        }
-        if (action === 'lang') {
         }
         if (action === 'file') {
             const answer = await inquirer_1.default.prompt([
@@ -48,8 +46,8 @@ const runSettingMenu = async (ctx) => {
                     type: 'input',
                     name: 'file',
                     message: ctx.messages.common.promptFile,
-                    default: current.defaultFile ?? ''
-                }
+                    default: current.defaultFile ?? '',
+                },
             ]);
             (0, file_1.setDefaultFile)(answer.file);
             (0, logger_1.logInfo)(ctx.messages.common.configSaved);

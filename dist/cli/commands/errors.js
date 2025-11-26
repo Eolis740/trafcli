@@ -39,7 +39,7 @@ const registerErrorsCommand = (program, ctx) => {
         const analysis = (0, errorsCalc_1.analyzeErrors)(logs, {
             status: options.status,
             path: options.path,
-            service: options.service
+            service: options.service,
         }, options.limit);
         if (analysis.recent.length === 0) {
             (0, logger_1.logInfo)(ctx.messages.errors.noErrors);
@@ -47,7 +47,7 @@ const registerErrorsCommand = (program, ctx) => {
         }
         const countTable = (0, table_1.renderTable)([
             { name: ctx.messages.errors.colStatus },
-            { name: ctx.messages.stats.colCount, alignment: 'right' }
+            { name: ctx.messages.stats.colCount, alignment: 'right' },
         ], Object.entries(analysis.counts)
             .sort((a, b) => Number(b[0]) - Number(a[0]))
             .map(([status, count]) => [status, (0, format_1.formatNumber)(count)]));
@@ -56,13 +56,13 @@ const registerErrorsCommand = (program, ctx) => {
             { name: ctx.messages.errors.colPath },
             { name: ctx.messages.errors.colService },
             { name: ctx.messages.errors.colTime },
-            { name: ctx.messages.errors.colLatency, alignment: 'right' }
+            { name: ctx.messages.errors.colLatency, alignment: 'right' },
         ], analysis.recent.map((log) => [
             String(log.status),
             log.path,
             log.service ?? '-',
             log.timestamp,
-            log.latencyMs
+            log.latencyMs,
         ]));
         console.log('\n' + ctx.messages.errors.errorCounts);
         console.log(countTable);

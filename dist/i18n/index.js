@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatWith = exports.getMessages = void 0;
 const en_1 = __importDefault(require("./en"));
-const getMessages = (_lang) => {
+const getMessages = () => {
     // Force English only.
     return en_1.default;
 };

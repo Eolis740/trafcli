@@ -10,7 +10,7 @@ const renderTable = (columns, rows) => {
     const table = new cli_table3_1.default({
         head,
         style: { head: ['cyan'], border: ['grey'] },
-        colAligns: columns.map((col) => col.alignment ?? 'left')
+        colAligns: columns.map((col) => col.alignment ?? 'left'),
     });
     rows.forEach((row) => table.push(row));
     return table.toString();

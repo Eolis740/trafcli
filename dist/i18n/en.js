@@ -26,7 +26,7 @@ const en = {
         limitOption: 'Sample size',
         watchOption: 'Watch for updates',
         intervalOption: 'Refresh interval (sec)',
-        watchStart: 'Watching for updates... press Ctrl+C to stop.'
+        watchStart: 'Watching for updates... press Ctrl+C to stop.',
     },
     stats: {
         title: 'Traffic Stats',
@@ -41,7 +41,7 @@ const en = {
         max: 'Max',
         p95: 'p95',
         p99: 'p99',
-        statuses: { '2xx': '2xx', '4xx': '4xx', '5xx': '5xx', other: 'Other' }
+        statuses: { '2xx': '2xx', '4xx': '4xx', '5xx': '5xx', other: 'Other' },
     },
     errors: {
         title: 'Error Analysis',
@@ -52,7 +52,7 @@ const en = {
         colPath: 'Path',
         colService: 'Service',
         colTime: 'Time',
-        colLatency: 'Latency(ms)'
+        colLatency: 'Latency(ms)',
     },
     qps: {
         title: 'QPS',
@@ -60,7 +60,7 @@ const en = {
         peakQps: 'Peak QPS',
         colTime: 'Time',
         colCount: 'Count',
-        colGroup: 'Group'
+        colGroup: 'Group',
     },
     config: {
         title: 'Config',
@@ -70,7 +70,7 @@ const en = {
         menuTitle: 'Configure trafcli',
         setLanguage: 'Set language',
         setFile: 'Set default log file',
-        back: 'Back'
+        back: 'Back',
     },
     interactive: {
         title: 'Traffic Insight CLI',
@@ -80,9 +80,9 @@ const en = {
             stats: 'View stats',
             errors: 'Analyze errors',
             qps: 'View QPS',
-            settings: 'Settings'
-        }
-    }
+            settings: 'Settings',
+        },
+    },
 };
 exports.default = en;
 //# sourceMappingURL=en.js.map

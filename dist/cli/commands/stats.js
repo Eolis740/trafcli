@@ -36,31 +36,33 @@ const registerStatsCommand = (program, ctx) => {
                 (0, logger_1.logError)(ctx.messages.common.noData);
                 return false;
             }
-            const topLimit = options.all ? 0 : options.top ?? 5;
+            const topLimit = options.all ? 0 : (options.top ?? 5);
             const stats = (0, statsCalc_1.calculateStats)(logs, topLimit);
             const statusTable = (0, table_1.renderTable)([
                 { name: ctx.messages.stats.colStatus },
                 { name: ctx.messages.stats.colCount, alignment: 'right' },
-                { name: '%' }
+                { name: '%' },
             ], Object.entries(stats.statusGroups).map(([key, count]) => [
                 ctx.messages.stats.statuses[key] ?? key,
                 (0, format_1.formatNumber)(count),
-                stats.totalRequests ? (0, format_1.formatPercent)(count / stats.totalRequests) : '0%'
+                stats.totalRequests ? (0, format_1.formatPercent)(count / stats.totalRequests) : '0%',
             ]));
             const latencyTable = (0, table_1.renderTable)([
                 { name: ctx.messages.stats.average },
                 { name: ctx.messages.stats.max },
                 { name: ctx.messages.stats.p95 },
-                { name: ctx.messages.stats.p99 }
-            ], [[
+                { name: ctx.messages.stats.p99 },
+            ], [
+                [
                     (0, format_1.formatMs)(stats.latency.avg),
                     (0, format_1.formatMs)(stats.latency.max),
                     (0, format_1.formatMs)(stats.latency.p95),
-                    (0, format_1.formatMs)(stats.latency.p99)
-                ]]);
+                    (0, format_1.formatMs)(stats.latency.p99),
+                ],
+            ]);
             const endpointTable = (0, table_1.renderTable)([
                 { name: ctx.messages.stats.colPath },
-                { name: ctx.messages.stats.colCount, alignment: 'right' }
+                { name: ctx.messages.stats.colCount, alignment: 'right' },
             ], stats.topEndpoints.map((item) => [item.path, (0, format_1.formatNumber)(item.count)]));
             console.clear();
             (0, logger_1.logInfo)((0, i18n_1.formatWith)(ctx.messages.common.usingFile, { file: filePath }));

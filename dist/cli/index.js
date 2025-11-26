@@ -29,7 +29,7 @@ const logger_1 = require("../utils/logger");
 const buildProgram = () => {
     const program = new commander_1.Command();
     const config = (0, file_1.readConfig)();
-    const messages = (0, i18n_1.getMessages)(config.lang);
+    const messages = (0, i18n_1.getMessages)();
     const ctx = { config, messages };
     program.name('trafcli').description(messages.common.cliDescription).version(package_json_1.default.version);
     (0, stats_1.registerStatsCommand)(program, ctx);
@@ -42,109 +42,8 @@ const buildProgram = () => {
 exports.buildProgram = buildProgram;
 const refreshContext = () => {
     const config = (0, file_1.readConfig)();
-    const messages = (0, i18n_1.getMessages)(config.lang);
+    const messages = (0, i18n_1.getMessages)();
     return { config, messages };
-};
-const promptLogFile = async (ctx) => {
-    const current = (0, file_1.readConfig)();
-    if (current.defaultFile)
-        return current.defaultFile;
-    const answer = await inquirer_1.default.prompt([
-        { type: 'input', name: 'file', message: ctx.messages.common.promptFile }
-    ]);
-    return answer.file || null;
-};
-const runStats = (filePath, ctx, logs) => {
-    const stats = (0, statsCalc_1.calculateStats)(logs);
-    const statusTable = (0, table_1.renderTable)([
-        { name: ctx.messages.stats.colStatus },
-        { name: ctx.messages.stats.colCount, alignment: 'right' },
-        { name: '%' }
-    ], Object.entries(stats.statusGroups).map(([key, count]) => [
-        ctx.messages.stats.statuses[key] ?? key,
-        (0, format_1.formatNumber)(count),
-        stats.totalRequests ? (0, format_1.formatPercent)(count / stats.totalRequests) : '0%'
-    ]));
-    const latencyTable = (0, table_1.renderTable)([
-        { name: ctx.messages.stats.average },
-        { name: ctx.messages.stats.max },
-        { name: ctx.messages.stats.p95 },
-        { name: ctx.messages.stats.p99 }
-    ], [[
-            (0, format_1.formatMs)(stats.latency.avg),
-            (0, format_1.formatMs)(stats.latency.max),
-            (0, format_1.formatMs)(stats.latency.p95),
-            (0, format_1.formatMs)(stats.latency.p99)
-        ]]);
-    const endpointTable = (0, table_1.renderTable)([
-        { name: ctx.messages.stats.colPath },
-        { name: ctx.messages.stats.colCount, alignment: 'right' }
-    ], stats.topEndpoints.map((item) => [item.path, (0, format_1.formatNumber)(item.count)]));
-    (0, logger_1.logInfo)(ctx.messages.stats.title);
-    console.log(`${ctx.messages.stats.totalRequests}: ${(0, format_1.formatNumber)(stats.totalRequests)}`);
-    console.log(statusTable);
-    console.log(latencyTable);
-    console.log(endpointTable);
-};
-const runErrors = async (ctx, logs) => {
-    const answers = await inquirer_1.default.prompt([
-        { type: 'input', name: 'status', message: ctx.messages.common.statusOption, default: '' },
-        { type: 'input', name: 'path', message: ctx.messages.common.pathOption, default: '' },
-        { type: 'input', name: 'service', message: ctx.messages.common.serviceOption, default: '' },
-        { type: 'input', name: 'limit', message: ctx.messages.common.limitOption, default: '5' }
-    ]);
-    const status = answers.status ? Number(answers.status) : undefined;
-    const limit = answers.limit ? Number(answers.limit) : 5;
-    const filtered = (0, errorsCalc_1.analyzeErrors)(logs, { status, path: answers.path || undefined, service: answers.service || undefined }, Number.isFinite(limit) ? limit : 5);
-    if (filtered.recent.length === 0) {
-        (0, logger_1.logInfo)(ctx.messages.errors.noErrors);
-        return;
-    }
-    const countTable = (0, table_1.renderTable)([
-        { name: ctx.messages.errors.colStatus },
-        { name: ctx.messages.stats.colCount, alignment: 'right' }
-    ], Object.entries(filtered.counts)
-        .sort((a, b) => Number(b[0]) - Number(a[0]))
-        .map(([statusCode, count]) => [statusCode, (0, format_1.formatNumber)(count)]));
-    const sampleTable = (0, table_1.renderTable)([
-        { name: ctx.messages.errors.colStatus },
-        { name: ctx.messages.errors.colPath },
-        { name: ctx.messages.errors.colService },
-        { name: ctx.messages.errors.colTime },
-        { name: ctx.messages.errors.colLatency, alignment: 'right' }
-    ], filtered.recent.map((log) => [
-        String(log.status),
-        log.path,
-        log.service ?? '-',
-        log.timestamp,
-        log.latencyMs
-    ]));
-    console.log(countTable);
-    console.log(sampleTable);
-};
-const runQps = async (ctx, logs) => {
-    const { groupBy } = await inquirer_1.default.prompt([
-        {
-            type: 'list',
-            name: 'groupBy',
-            message: ctx.messages.common.groupOption,
-            choices: [
-                { name: 'none', value: undefined },
-                { name: 'service', value: 'service' },
-                { name: 'path', value: 'path' }
-            ],
-            default: undefined
-        }
-    ]);
-    const result = (0, qpsCalc_1.calculateQps)(logs, groupBy);
-    const seriesTable = (0, table_1.renderTable)([
-        { name: ctx.messages.qps.colTime },
-        { name: ctx.messages.qps.colGroup },
-        { name: ctx.messages.qps.colCount, alignment: 'right' }
-    ], result.series.map((item) => [item.time, item.group ?? '-', (0, format_1.formatNumber)(item.count)]));
-    console.log(`${ctx.messages.qps.averageQps}: ${(0, format_1.formatMs)(result.averageQps)}`);
-    console.log(`${ctx.messages.qps.peakQps}: ${(0, format_1.formatMs)(result.peakQps)}`);
-    console.log(seriesTable);
 };
 const parseFlags = (tokens) => {
     const flags = {};
@@ -200,7 +99,7 @@ const autoDetectLogFileSync = () => {
         'logs/traffic.log',
         'log/traffic.json',
         'log/traffic.ndjson',
-        'log/traffic.log'
+        'log/traffic.log',
     ].map((p) => path_1.default.resolve(cwd, p));
     for (const c of candidates) {
         if (fileExists(c))
@@ -210,13 +109,14 @@ const autoDetectLogFileSync = () => {
 };
 const globLogCandidates = async () => {
     const cwd = process.cwd();
-    const patterns = [
-        '**/traffic*.json',
-        '**/*.ndjson',
-        '**/*.log',
-        '**/*.json'
+    const patterns = ['**/traffic*.json', '**/*.ndjson', '**/*.log', '**/*.json'];
+    const ignore = [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/.git/**',
+        '**/.turbo/**',
+        '**/coverage/**',
     ];
-    const ignore = ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/.turbo/**', '**/coverage/**'];
     const matches = await (0, glob_1.glob)(patterns, { cwd, ignore, nodir: true, absolute: true, maxDepth: 6 });
     const uniq = Array.from(new Set(matches));
     return uniq;
@@ -235,8 +135,8 @@ const pickLogFile = async () => {
             type: 'list',
             name: 'chosen',
             message: 'Select log file',
-            choices: candidates.map((c) => ({ name: path_1.default.relative(process.cwd(), c), value: c }))
-        }
+            choices: candidates.map((c) => ({ name: path_1.default.relative(process.cwd(), c), value: c })),
+        },
     ]);
     return chosen;
 };
@@ -304,14 +204,14 @@ const startShellSession = async () => {
         'cls',
         'help',
         'exit',
-        'quit'
+        'quit',
     ];
     const flagHints = {
         stats: ['--watch', '--interval', '--file', '--top', '--all'],
         errors: ['--status', '--path', '--service', '--limit', '--file'],
         qps: ['--group-by', '--file'],
         search: ['--path', '--service', '--status', '--limit', '--file'],
-        config: ['show', 'reset', 'set-file']
+        config: ['show', 'reset', 'set-file'],
     };
     const safeLoadForCompletion = () => {
         const ctx = refreshContext();
@@ -336,15 +236,11 @@ const startShellSession = async () => {
                 services.add(l.service);
             statuses.add(String(l.status));
         });
-        return [
-            ...Array.from(paths),
-            ...Array.from(services),
-            ...Array.from(statuses)
-        ].slice(0, 200);
+        return [...Array.from(paths), ...Array.from(services), ...Array.from(statuses)].slice(0, 200);
     };
     const completer = (line) => {
         const tokens = line.trim().split(/\s+/).filter(Boolean);
-        const last = line.endsWith(' ') ? '' : tokens[tokens.length - 1] ?? '';
+        const last = line.endsWith(' ') ? '' : (tokens[tokens.length - 1] ?? '');
         const cmd = tokens[0] ?? '';
         let suggestions = [];
         if (tokens.length <= 1) {
@@ -368,7 +264,7 @@ const startShellSession = async () => {
         output: process.stdout,
         completer,
         history: loadHistory(),
-        historySize: 500
+        historySize: 500,
     });
     let activeInterval = null;
     const stopActiveInterval = () => {
@@ -395,7 +291,9 @@ const startShellSession = async () => {
             prompt();
             return;
         }
-        let [cmd, ...rest] = tokens;
+        const [first, ...restTokens] = tokens;
+        let cmd = first ?? '';
+        const rest = [...restTokens];
         if (cmd === 'trafcli') {
             cmd = rest.shift() ?? '';
         }
@@ -464,26 +362,28 @@ const startShellSession = async () => {
                 const statusTable = (0, table_1.renderTable)([
                     { name: ctx.messages.stats.colStatus },
                     { name: ctx.messages.stats.colCount, alignment: 'right' },
-                    { name: '%' }
+                    { name: '%' },
                 ], Object.entries(stats.statusGroups).map(([key, count]) => [
                     ctx.messages.stats.statuses[key] ?? key,
                     (0, format_1.formatNumber)(count),
-                    stats.totalRequests ? (0, format_1.formatPercent)(count / stats.totalRequests) : '0%'
+                    stats.totalRequests ? (0, format_1.formatPercent)(count / stats.totalRequests) : '0%',
                 ]));
                 const latencyTable = (0, table_1.renderTable)([
                     { name: ctx.messages.stats.average },
                     { name: ctx.messages.stats.max },
                     { name: ctx.messages.stats.p95 },
-                    { name: ctx.messages.stats.p99 }
-                ], [[
+                    { name: ctx.messages.stats.p99 },
+                ], [
+                    [
                         (0, format_1.formatMs)(stats.latency.avg),
                         (0, format_1.formatMs)(stats.latency.max),
                         (0, format_1.formatMs)(stats.latency.p95),
-                        (0, format_1.formatMs)(stats.latency.p99)
-                    ]]);
+                        (0, format_1.formatMs)(stats.latency.p99),
+                    ],
+                ]);
                 const endpointTable = (0, table_1.renderTable)([
                     { name: ctx.messages.stats.colPath },
-                    { name: ctx.messages.stats.colCount, alignment: 'right' }
+                    { name: ctx.messages.stats.colCount, alignment: 'right' },
                 ], stats.topEndpoints.map((item) => [item.path, (0, format_1.formatNumber)(item.count)]));
                 console.clear();
                 (0, logger_1.logInfo)(`File: ${file}`);
@@ -507,7 +407,8 @@ const startShellSession = async () => {
                 activeInterval = setInterval(() => {
                     void render();
                 }, intervalMs);
-                // keep prompt active while watching
+                // 트래픽 스트리밍 중 에도 Ctrl+C로 멈출 수 있게
+                //트래픽 스트리밍 중 에도 명령어 입력 가능하게
                 rl.prompt(true);
             }
             else {
@@ -524,7 +425,7 @@ const startShellSession = async () => {
             const filtered = (0, errorsCalc_1.analyzeErrors)(target.logs, {
                 status: flags.status ? Number(flags.status) : undefined,
                 path: flags.path ? String(flags.path) : undefined,
-                service: flags.service ? String(flags.service) : undefined
+                service: flags.service ? String(flags.service) : undefined,
             }, flags.limit ? Number(flags.limit) : 5);
             if (filtered.recent.length === 0) {
                 (0, logger_1.logInfo)(ctx.messages.errors.noErrors);
@@ -533,7 +434,7 @@ const startShellSession = async () => {
             }
             const countTable = (0, table_1.renderTable)([
                 { name: ctx.messages.errors.colStatus },
-                { name: ctx.messages.stats.colCount, alignment: 'right' }
+                { name: ctx.messages.stats.colCount, alignment: 'right' },
             ], Object.entries(filtered.counts)
                 .sort((a, b) => Number(b[0]) - Number(a[0]))
                 .map(([statusCode, count]) => [statusCode, (0, format_1.formatNumber)(count)]));
@@ -542,13 +443,13 @@ const startShellSession = async () => {
                 { name: ctx.messages.errors.colPath },
                 { name: ctx.messages.errors.colService },
                 { name: ctx.messages.errors.colTime },
-                { name: ctx.messages.errors.colLatency, alignment: 'right' }
+                { name: ctx.messages.errors.colLatency, alignment: 'right' },
             ], filtered.recent.map((log) => [
                 String(log.status),
                 log.path,
                 log.service ?? '-',
                 log.timestamp,
-                log.latencyMs
+                log.latencyMs,
             ]));
             console.clear();
             (0, logger_1.logInfo)(`File: ${target.file}`);
@@ -580,19 +481,21 @@ const startShellSession = async () => {
                     return false;
                 return JSON.stringify(log).toLowerCase().includes(kwLower);
             });
-            const rows = filtered.slice(0, Number.isFinite(limit) ? limit : 20).map((log) => [
+            const rows = filtered
+                .slice(0, Number.isFinite(limit) ? limit : 20)
+                .map((log) => [
                 String(log.status),
                 log.path,
                 log.service ?? '-',
                 log.timestamp,
-                log.latencyMs
+                log.latencyMs,
             ]);
             const table = (0, table_1.renderTable)([
                 { name: ctx.messages.errors.colStatus },
                 { name: ctx.messages.errors.colPath },
                 { name: ctx.messages.errors.colService },
                 { name: ctx.messages.errors.colTime },
-                { name: ctx.messages.errors.colLatency, alignment: 'right' }
+                { name: ctx.messages.errors.colLatency, alignment: 'right' },
             ], rows);
             console.clear();
             (0, logger_1.logInfo)(`File: ${target.file}`);
@@ -611,7 +514,7 @@ const startShellSession = async () => {
             const seriesTable = (0, table_1.renderTable)([
                 { name: ctx.messages.qps.colTime },
                 { name: ctx.messages.qps.colGroup },
-                { name: ctx.messages.qps.colCount, alignment: 'right' }
+                { name: ctx.messages.qps.colCount, alignment: 'right' },
             ], result.series.map((item) => [item.time, item.group ?? '-', (0, format_1.formatNumber)(item.count)]));
             console.clear();
             (0, logger_1.logInfo)(`File: ${target.file}`);

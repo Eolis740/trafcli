@@ -8,7 +8,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const os_1 = __importDefault(require("os"));
 const defaultConfig = {
-    lang: 'en'
+    lang: 'en',
 };
 const getConfigPath = () => {
     const home = os_1.default.homedir();
@@ -43,7 +43,7 @@ const resetConfig = () => {
     (0, exports.writeConfig)(defaultConfig);
 };
 exports.resetConfig = resetConfig;
-const setLanguage = (lang) => {
+const setLanguage = () => {
     const current = (0, exports.readConfig)();
     const next = { ...current, lang: 'en' };
     (0, exports.writeConfig)(next);

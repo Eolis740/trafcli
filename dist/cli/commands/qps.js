@@ -37,7 +37,7 @@ const registerQpsCommand = (program, ctx) => {
         const seriesTable = (0, table_1.renderTable)([
             { name: ctx.messages.qps.colTime },
             { name: ctx.messages.qps.colGroup },
-            { name: ctx.messages.qps.colCount, alignment: 'right' }
+            { name: ctx.messages.qps.colCount, alignment: 'right' },
         ], result.series.map((item) => [item.time, item.group ?? '-', (0, format_1.formatNumber)(item.count)]));
         console.log('\n' + ctx.messages.qps.title);
         console.log(`${ctx.messages.qps.averageQps}: ${(0, format_1.formatMs)(result.averageQps)}`);

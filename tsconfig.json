@@ -20,8 +20,8 @@
     "newLine": "lf",
     "allowArbitraryExtensions": false,
     "lib": ["ES2020"],
-    "types": ["node", "jest"],
+    "types": ["node", "jest"]
   },
-  "include": ["src", "tests"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
