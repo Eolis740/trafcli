@@ -5,8 +5,8 @@ import { analyzeErrors } from '../src/core/errorsCalc';
 const samplePath = path.join(__dirname, '..', 'sample-logs', 'traffic-sample.json');
 
 describe('errors', () => {
-  it('counts errors and returns recent samples', () => {
-    const logs = loadLogFile(samplePath);
+  it('counts errors and returns recent samples', async () => {
+    const logs = await loadLogFile(samplePath);
     const result = analyzeErrors(logs, {}, 3);
     const totalErrors = Object.values(result.counts).reduce((a, b) => a + b, 0);
     expect(totalErrors).toBeGreaterThan(0);
