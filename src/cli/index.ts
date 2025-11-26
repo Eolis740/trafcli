@@ -442,7 +442,9 @@ const startShellSession = async (): Promise<void> => {
       prompt();
       return;
     }
-    let [cmd, ...rest] = tokens;
+    const [first, ...restTokens] = tokens;
+    let cmd = first ?? '';
+    const rest = [...restTokens];
     if (cmd === 'trafcli') {
       cmd = rest.shift() ?? '';
     }

@@ -42,9 +42,6 @@ export const runSettingMenu = async (ctx: CLIContext): Promise<void> => {
       continue;
     }
 
-    if (action === 'lang') {
-    }
-
     if (action === 'file') {
       const answer = await inquirer.prompt([
         {
